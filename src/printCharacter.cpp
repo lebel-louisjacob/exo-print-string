@@ -49,8 +49,8 @@ static exo::Object function_property(exo::Object character_remainder, exo::Conte
     putchar(result);
 
     auto const&& promise_library { exo::find_parent("promise", context) };
-    auto const&& successs_constructor { exo::get_property(promise_library, "success", context) };
-    return exo::call(successs_constructor, [](exo::Context context) {
+    auto const&& success_constructor { exo::get_property(promise_library, "success", context) };
+    return exo::call(success_constructor, [](exo::Context context) {
         return exo::find_parent("nothing", context);
     }, context);
 }
