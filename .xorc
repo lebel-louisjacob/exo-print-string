@@ -1,0 +1,6 @@
+name: printLine
+version: 0.0.1
+dependencies:
+- bit@0.0.2
+- promise@0.0.1
+- empty@0.0.1
