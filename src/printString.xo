@@ -1,0 +1,5 @@
+{
+    (message) = message.characters.foldBottom
+        .({ (a) = a.current.flatMap.({ (b) = printCharacter.(a.element) }) })
+        .(promise.success.(empty))
+}
