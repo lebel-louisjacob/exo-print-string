@@ -32,17 +32,17 @@ static exo::Object resolve_bit_address(exo::Object const bit, exo::Context conte
 }
 
 static exo::Object function_property(exo::Object character_remainder, exo::Context const context) {
-    auto const&& false_bit { find_bit<"false">(context) };
+    auto const&& true_bit { find_bit<"true">(context) };
 
     uint32_t result { 0 };
 
     for (uint8_t i { 0 }; i < (sizeof(result) * 8); ++i) {
         auto const&& character_is_zero { resolve_bit_address(exo::get_property(character_remainder, "isZero", context), context) };
-        if (character_is_zero == false_bit) break;
+        if (character_is_zero == true_bit) break;
 
         auto const&& character_is_odd { resolve_bit_address(exo::get_property(character_remainder, "isOdd", context), context) };
 
-        result |= static_cast<uint32_t>(character_is_odd != false_bit) << i;
+        result |= static_cast<uint32_t>(character_is_odd == true_bit) << i;
         character_remainder = exo::get_property(character_remainder, "shiftRight", context);
     }
 
