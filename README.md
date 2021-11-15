@@ -4,6 +4,8 @@ Standard output native bindings for Exo.
 
 ## Build
 
+The makefile generates the shared library in the `out/lib` folder.
+
 ### Via docker
 
 ```sh
