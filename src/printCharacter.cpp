@@ -1,60 +1,32 @@
 #include <native.hpp>
 
 #include <cstdio>
-#include <algorithm>
 
-// source: https://ctrpeach.io/posts/cpp20-string-literal-template-parameters/
-template<size_t N>
-struct StringLiteral {
-    constexpr StringLiteral(const char (&str)[N]) {
-        std::copy_n(str, N, value);
-    }
-    
-    char value[N];
-};
-
-template <StringLiteral bit_name>
-static auto const find_bit = [](exo::Context context) {
-    static exo::Object bit_object { nullptr };
-
-    if (bit_object == nullptr) {
-        auto const&& bit_library { exo::find_parent("bit", context) };
-        bit_object = exo::get_property(bit_library, bit_name.value, context);
-    }
-
-    return bit_object;
-};
-
-static exo::Object resolve_bit_address(exo::Object const bit, exo::Context context) {
-    auto const&& then_clause { exo::call(exo::get_property(bit, "then", context), find_bit<"true">, context) };
-    auto const&& else_clause { exo::call(exo::get_property(then_clause, "else", context), find_bit<"false">, context) };
-    return else_clause;
-}
-
-static exo::Object function_property(exo::Object character_remainder, exo::Context const context) {
-    auto const&& true_bit { find_bit<"true">(context) };
+exo::Object function_property(exo::Object character_remainder, exo::Object const self) {
+    auto const&& bit_library { exo::find("bit", self) };
+    auto const&& true_bit { exo::get("true", bit_library) };
 
     uint32_t result { 0 };
 
     for (uint8_t i { 0 }; i < (sizeof(result) * 8); ++i) {
-        auto const&& character_is_zero { resolve_bit_address(exo::get_property(character_remainder, "isZero", context), context) };
+        auto const&& character_is_zero { exo::get("isZero", character_remainder) };
         if (character_is_zero == true_bit) break;
 
-        auto const&& character_is_odd { resolve_bit_address(exo::get_property(character_remainder, "isOdd", context), context) };
+        auto const&& character_is_odd { exo::get("isOdd", character_remainder) };
 
         result |= static_cast<uint32_t>(character_is_odd == true_bit) << i;
-        character_remainder = exo::get_property(character_remainder, "shiftRight", context);
+        character_remainder = exo::get("shiftRight", character_remainder);
     }
 
     putchar(result);
 
-    auto const&& promise_library { exo::find_parent("promise", context) };
-    auto const&& success_constructor { exo::get_property(promise_library, "success", context) };
-    return exo::call(success_constructor, [](exo::Context context) {
-        return exo::find_parent("nothing", context);
-    }, context);
+    auto const&& empty_library { exo::find("empty", self) };
+
+    auto const&& promise_library { exo::find("promise", self) };
+    auto const&& success_constructor { exo::get("success", promise_library) };
+    return exo::call(empty_library, success_constructor);
 }
 
-extern "C" void create_native_object(exo::ConstructionContext const construction_context, exo::Context const context) {
-    exo::define_function_property(&function_property, construction_context);
+extern "C" void create_native_object(exo::Context const context, exo::Object const self) {
+    exo::define_function_property(&function_property, context);
 }
